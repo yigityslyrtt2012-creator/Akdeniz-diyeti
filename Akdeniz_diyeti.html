@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Akdeniz Diyeti Değerlendirme Anketi</title>
+<style>
+  body {
+    font-family: "Poppins", sans-serif;
+    background-color: #f9fafb;
+    margin: 0;
+    padding: 0;
+  }
+  .container {
+    max-width: 600px;
+    margin: 20px auto;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+    color: #2e7d32;
+    margin-bottom: 10px;
+  }
+  .info input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+  }
+  .question {
+    margin-bottom: 15px;
+    background: #f2f2f2;
+    border-radius: 10px;
+    padding: 10px;
+  }
+  .question p {
+    margin: 0 0 8px;
+    font-weight: 500;
+  }
+  button {
+    width: 100%;
+    background-color: #2e7d32;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #256327;
+  }
+  .result {
+    display: none;
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 12px;
+    font-size: 16px;
+  }
+  .low { background-color: #ffebee; color: #c62828; }
+  .medium { background-color: #fff8e1; color: #f57f17; }
+  .high { background-color: #e8f5e9; color: #2e7d32; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Akdeniz Diyeti Değerlendirme Anketi</h1>
+  <div class="info">
+    <label>İsim Soyisim:</label>
+    <input type="text" id="isim">
+    <label>Yaş:</label>
+    <input type="number" id="yas">
+    <label>Boy (cm):</label>
+    <input type="number" id="boy">
+    <label>Kilo (kg):</label>
+    <input type="number" id="kilo">
+    <label>Cinsiyet:</label>
+    <select id="cinsiyet" style="width:100%; padding:8px; border-radius:8px; border:1px solid #ccc;">
+      <option value="">Seçiniz</option>
+      <option>Erkek</option>
+      <option>Kadın</option>
+      <option>Diğer</option>
+    </select>
+  </div>
+
+  <form id="anketForm">
+    <div id="sorular"></div>
+    <button type="button" onclick="hesapla()">Sonucu Göster</button>
+  </form>
+
+  <div id="sonuc" class="result"></div>
+</div>
+
+<script>
+const sorular = [
+  "Yemeklerde ana yağ olarak zeytinyağı kullanıyor musunuz?",
+  "Günlük 4 yemek kaşığından fazla zeytinyağı tüketiyor musunuz?",
+  "Günlük 2 porsiyondan fazla sebze tüketiyor musunuz?",
+  "Günlük 3 porsiyondan fazla meyve tüketiyor musunuz?",
+  "Kırmızı et veya işlenmiş et ürünlerini günde 1 porsiyondan az tüketiyor musunuz?",
+  "Tereyağı, margarin veya krema tüketiyor musunuz?",
+  "Şekerli veya gazlı içecekleri günde 1 porsiyondan az tüketiyor musunuz?",
+  "Şarap veya alkolü haftada 7 kadehten az tüketiyor musunuz?",
+  "Haftada 3 porsiyondan fazla baklagil tüketiyor musunuz?",
+  "Haftada 3 porsiyondan fazla balık veya deniz ürünü tüketiyor musunuz?",
+  "Tavuk eti tercihiniz kırmızı etten fazla mı?",
+  "Haftada 3 kereden fazla kuruyemiş tüketiyor musunuz?",
+  "Yemeklerde (özellikle soslu yemeklerde) zeytinyağı kullanıyor musunuz?",
+  "Tatlıları (pasta, çörek vb.) haftada 3 kereden az tüketiyor musunuz?"
+];
+
+const saglikliCevap = [1,1,1,1,1,0,1,1,1,1,1,1,1,1];
+
+window.onload = () => {
+  const sContainer = document.getElementById("sorular");
+  sorular.forEach((s, i) => {
+    sContainer.innerHTML += `
+      <div class="question">
+        <p>${i+1}. ${s}</p>
+        <label><input type="radio" name="s${i}" value="1"> Evet</label><br>
+        <label><input type="radio" name="s${i}" value="0"> Hayır</label>
+      </div>`;
+  });
+}
+
+function hesapla() {
+  let puan = 0;
+  sorular.forEach((_, i) => {
+    const secim = document.querySelector(`input[name="s${i}"]:checked`);
+    if (secim) {
+      const deger = Number(secim.value);
+      if (deger === saglikliCevap[i]) puan++;
+    }
+  });
+
+  const yas = document.getElementById("yas").value;
+  const boy = document.getElementById("boy").value;
+  const kilo = document.getElementById("kilo").value;
+  const isim = document.getElementById("isim").value || "Belirtilmemiş";
+  const cinsiyet = document.getElementById("cinsiyet").value || "Belirtilmemiş";
+
+  let mesaj = "";
+  let sinif = "";
+  if (puan <= 5) {
+    mesaj = "<strong>Düşük uyum.</strong> Akdeniz diyetinden uzak bir beslenme düzeniniz var.";
+    sinif = "low";
+  } else if (puan <= 10) {
+    mesaj = "<strong>Orta uyum.</strong> Diyetinizin bazı özellikleri mevcut, sebze, balık ve zeytinyağı tüketimini artırabilirsiniz.";
+    sinif = "medium";
+  } else {
+    mesaj = "<strong>Yüksek uyum!</strong> Beslenme tarzınız Akdeniz diyetine oldukça yakın, sağlıklı beslenmeye devam!";
+    sinif = "high";
+  }
+
+  const sonuc = document.getElementById("sonuc");
+  sonuc.className = `result ${sinif}`;
+  sonuc.style.display = "block";
+  sonuc.innerHTML = `
+    <h3>Sonuç:</h3>
+    <p><strong>Puanınız:</strong> ${puan} / 14</p>
+    <p>${mesaj}</p>
+    <hr>
+    <p><strong>Katılımcı Bilgileri:</strong><br>
+    İsim Soyisim: ${isim}<br>
+    Yaş: ${yas}<br>
+    Boy: ${boy} cm<br>
+    Kilo: ${kilo} kg<br>
+    Cinsiyet: ${cinsiyet}</p>
+  `;
+}
+</script>
+
+</body>
+</html>
